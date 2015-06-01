@@ -154,13 +154,15 @@ public class MainActivity extends Activity {
 								@Override
 								public void tcp_disconnect() {
 									// TODO Auto-generated method stub
-
+									Toast.makeText(MainActivity.this, "连接失败!",
+											1000).show();
 								}
 
 								@Override
 								public void tcp_connected() {
 									// TODO Auto-generated method stub
-
+									Toast.makeText(MainActivity.this, "连接成功!",
+											1000).show();
 								}
 							});
 					tcpSocketConnect.setAddress(inetAddress.getHostAddress(),
