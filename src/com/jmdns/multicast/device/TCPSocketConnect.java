@@ -83,7 +83,7 @@ public class TCPSocketConnect implements Runnable {
 		synchronized (lock) {
 			isConnect = false;
 			lock.notify();
-			resetConnect();
+			// resetConnect();
 		}
 	}
 
@@ -101,6 +101,7 @@ public class TCPSocketConnect implements Runnable {
 	 */
 	public void write(byte[] buffer) {
 		if (writeRunnable != null) {
+			
 			writeRunnable.write(buffer);
 		}
 	}
@@ -156,6 +157,7 @@ public class TCPSocketConnect implements Runnable {
 		public void run() {
 			Log.d(TAG, ">TCP发送线程开启<");
 			while (isWrite) {
+
 				synchronized (wlock) {
 					if (datas.size() <= 0) {
 						try {
@@ -166,6 +168,7 @@ public class TCPSocketConnect implements Runnable {
 					}
 					while (datas.size() > 0) {
 						byte[] buffer = datas.remove(0);// 获取一条发送数据
+					
 						if (isWrite) {
 							writes(buffer);// 发送数据
 						} else {

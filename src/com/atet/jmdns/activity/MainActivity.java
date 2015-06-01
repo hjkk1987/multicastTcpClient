@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
 	private JmdnsAPP jmdnsAPP = null;
 	private UDPSocket udpSocket = null;
 	private TCPSocketConnect tcpSocketConnect = null;
+	private boolean isRunning = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -154,19 +155,58 @@ public class MainActivity extends Activity {
 								@Override
 								public void tcp_disconnect() {
 									// TODO Auto-generated method stub
-									Toast.makeText(MainActivity.this, "连接失败!",
-											1000).show();
+									runOnUiThread(new Runnable() {
+
+										@Override
+										public void run() {
+											// TODO Auto-generated method stub
+											Toast.makeText(MainActivity.this,
+													"连接失败!", 1000).show();
+											isRunning = false;
+										}
+									});
+
 								}
 
 								@Override
 								public void tcp_connected() {
 									// TODO Auto-generated method stub
-									Toast.makeText(MainActivity.this, "连接成功!",
-											1000).show();
+									isRunning = true;
+									runOnUiThread(new Runnable() {
+
+										@Override
+										public void run() {
+											Toast.makeText(MainActivity.this,
+													"连接成功!", 1000).show();
+
+										}
+									});
+									new Thread(new Runnable() {
+
+										@Override
+										public void run() {
+											// TODO Auto-generated method stub
+											while (isRunning) {
+												String hahahaha = "123456!";
+												if (tcpSocketConnect != null)
+													tcpSocketConnect.write(hahahaha
+															.getBytes());
+												try {
+													Thread.sleep(30);
+												} catch (InterruptedException e) {
+													// TODO Auto-generated catch
+													// block
+													e.printStackTrace();
+												}
+											}
+										}
+									}).start();
+
 								}
 							});
-					tcpSocketConnect.setAddress(inetAddress.getHostAddress(),
-							60034);
+					String address = inetAddress.getHostAddress();
+					Log.e(Tag, "Address:" + address);
+					tcpSocketConnect.setAddress(address, 60034);
 					new Thread(tcpSocketConnect).start();
 				}
 			}
@@ -192,7 +232,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			Log.e(Tag, "发送消息");
+
 			// startSendMsg();
 			mHandler.postDelayed(msgRunnable, 50);
 		}
@@ -237,8 +277,11 @@ public class MainActivity extends Activity {
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
 		super.onBackPressed();
+		isRunning = false;
 		if (udpSocket != null)
 			udpSocket.stopSocket();
+		if (tcpSocketConnect != null)
+			tcpSocketConnect.resetConnect();
 		JmdnsAPP.mJmdns.exit();
 		finish();
 		android.os.Process.killProcess(android.os.Process.myPid());

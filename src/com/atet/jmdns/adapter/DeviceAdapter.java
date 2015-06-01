@@ -67,7 +67,8 @@ public class DeviceAdapter extends BaseAdapter {
 		ServiceInfo serviceInfo = serviceInfos.get(arg0);
 		ServiceInfo serviceInfo2 = JmdnsAPP.mJmdns.getServiceInfo(serviceInfo);
 		viewHolder.tv_name.setText(serviceInfo2.getName() + "    "
-				+ serviceInfo2.getInetAddress().getHostAddress());
+				+ serviceInfo2.getInetAddress().getHostAddress() + "   "
+				+ serviceInfo2.getPort());
 
 		return arg1;
 	}
