@@ -2,6 +2,7 @@ package com.atet.jmdns.activity;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,10 @@ import com.atet.jmdns.connect.Communication;
 import com.atet.jmdns.connect.Connection;
 import com.atet.jmdns.connect.ConnectionWrapper;
 import com.atet.jmdns.connect.MessageHandler;
+import com.jmdns.multicast.device.TCPSocketCallback;
+import com.jmdns.multicast.device.TCPSocketConnect;
+import com.jmdns.multicast.device.TCPSocketFactory;
+import com.jmdns.multicast.device.UDPSocket;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -47,6 +52,8 @@ public class MainActivity extends Activity {
 	private EditText etMsg = null;
 	private Button btnSend = null;
 	private JmdnsAPP jmdnsAPP = null;
+	private UDPSocket udpSocket = null;
+	private TCPSocketConnect tcpSocketConnect = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +61,18 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		jmdnsAPP = (JmdnsAPP) getApplication();
+
 		widget_init();
 		message.put(Communication.MESSAGE, "1");
 		message.put(Communication.MESSAGE_TYPE, "2");
-//		((JmdnsAPP) getApplication())
-//				.createConnectionWrapper(new ConnectionWrapper.OnCreatedListener() {
-//					@Override
-//					public void onCreated() {
-//						Log.e(Tag, "OnCreatedListener");
-//					}
-//				});
-		JmdnsAPP.multiSocket.startSocket();
+		// ((JmdnsAPP) getApplication())
+		// .createConnectionWrapper(new ConnectionWrapper.OnCreatedListener() {
+		// @Override
+		// public void onCreated() {
+		// Log.e(Tag, "OnCreatedListener");
+		// }
+		// });
+		// JmdnsAPP.multiSocket.startSocket();
 
 	}
 
@@ -101,18 +109,18 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				String msg = etMsg.getText().toString();
-//				if (!msg.isEmpty()) {
-//					Map<String, String> sendMsg = new HashMap<String, String>();
-//					SimpleDateFormat format = new SimpleDateFormat(
-//							"MM-dd   HH:mm:ss.SSS");
-//					long time = System.currentTimeMillis();
-//					String strTime = format.format(time);
-//					sendMsg.put(Communication.MESSAGE_TYPE, strTime + "  "
-//							+ msg);
-//					sendMsg.put(Communication.MESSAGE, "hahaha!");
-//					startSendMsg(sendMsg);
-//					// startSendMsg();
-//				}
+				// if (!msg.isEmpty()) {
+				// Map<String, String> sendMsg = new HashMap<String, String>();
+				// SimpleDateFormat format = new SimpleDateFormat(
+				// "MM-dd   HH:mm:ss.SSS");
+				// long time = System.currentTimeMillis();
+				// String strTime = format.format(time);
+				// sendMsg.put(Communication.MESSAGE_TYPE, strTime + "  "
+				// + msg);
+				// sendMsg.put(Communication.MESSAGE, "hahaha!");
+				// startSendMsg(sendMsg);
+				// // startSendMsg();
+				// }
 			}
 		});
 	}
@@ -126,9 +134,39 @@ public class MainActivity extends Activity {
 			ServiceInfo serviceInfo2 = JmdnsAPP.mJmdns
 					.getServiceInfo(serviceInfo);
 			if (serviceInfo2 != null) {
-				int port = serviceInfo2.getPort();
-				JmdnsAPP.multiSocket.setPort(port);
-				JmdnsAPP.multiSocket.startSocket();
+				InetAddress inetAddress = serviceInfo2.getInetAddress();
+				// if (inetAddress != null) {
+				// if (udpSocket == null || !udpSocket.isAlive())
+				// udpSocket = new UDPSocket(MainActivity.this,
+				// inetAddress);
+				// udpSocket.startSocket();
+				// }
+				if (tcpSocketConnect == null) {
+					tcpSocketConnect = new TCPSocketConnect(
+							new TCPSocketCallback() {
+
+								@Override
+								public void tcp_receive(byte[] buffer) {
+									// TODO Auto-generated method stub
+
+								}
+
+								@Override
+								public void tcp_disconnect() {
+									// TODO Auto-generated method stub
+
+								}
+
+								@Override
+								public void tcp_connected() {
+									// TODO Auto-generated method stub
+
+								}
+							});
+					tcpSocketConnect.setAddress(inetAddress.getHostAddress(),
+							60034);
+					new Thread(tcpSocketConnect).start();
+				}
 			}
 
 		}
@@ -197,6 +235,8 @@ public class MainActivity extends Activity {
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
 		super.onBackPressed();
+		if (udpSocket != null)
+			udpSocket.stopSocket();
 		JmdnsAPP.mJmdns.exit();
 		finish();
 		android.os.Process.killProcess(android.os.Process.myPid());

@@ -35,6 +35,7 @@ public class MultiSocket implements Runnable {
 	private Thread socketThread = null;
 	private String Tag = MultiSocket.class.getName();
 	private String devName = "";
+	private static int count = 0;
 
 	public MultiSocket(Context context) {
 		// TODO Auto-generated constructor stub
@@ -95,7 +96,7 @@ public class MultiSocket implements Runnable {
 	private void sendData(byte[] buf) {
 		DatagramPacket dataPacket = null;
 		try {
-			multicastSocket.setTimeToLive(0);
+			multicastSocket.setTimeToLive(1);
 
 			dataPacket = new DatagramPacket(buf, buf.length, inetAddress,
 					disPort);
@@ -110,9 +111,15 @@ public class MultiSocket implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		while (!isStop) {
-			String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
-					new Date()).concat("   " + devName);
+			String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+					.format(new Date()).concat("   " + devName)
+					.concat("   " + count);
+			count++;
+			if (count > 65535) {
+				count = 0;
+			}
 			byte[] buf = time.getBytes();
+			Log.e(Tag, "发送数据:  " + time);
 			sendData(buf);
 			try {
 				Thread.sleep(10);

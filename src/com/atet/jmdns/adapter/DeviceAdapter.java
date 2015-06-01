@@ -6,6 +6,7 @@ import java.util.List;
 import javax.jmdns.ServiceInfo;
 
 import com.atet.jmdns.activity.R;
+import com.atet.jmdns.app.JmdnsAPP;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -64,7 +65,9 @@ public class DeviceAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder) arg1.getTag();
 		}
 		ServiceInfo serviceInfo = serviceInfos.get(arg0);
-		viewHolder.tv_name.setText(serviceInfo.getName());
+		ServiceInfo serviceInfo2 = JmdnsAPP.mJmdns.getServiceInfo(serviceInfo);
+		viewHolder.tv_name.setText(serviceInfo2.getName() + "    "
+				+ serviceInfo2.getInetAddress().getHostAddress());
 
 		return arg1;
 	}
