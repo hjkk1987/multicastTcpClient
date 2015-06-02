@@ -21,6 +21,7 @@ public class TCPSocketConnect implements Runnable {
 	private WriteRunnable writeRunnable;// 发送数据线程
 	private String ip = null;
 	private int port = -1;
+	private String Tag = TCPSocketConnect.class.getName();
 
 	/**
 	 * 创建连接
@@ -45,22 +46,21 @@ public class TCPSocketConnect implements Runnable {
 		while (isConnect) {
 			synchronized (lock) {
 				try {
-					// Log.e(TAG, ">TCP连接服务器<");
+					Log.e(TAG, ">TCP连接服务器<");
 					mSocket.connect(ip, port);// 连接服务器
+					Log.e(TAG, ">TCP连接服务器成功11111<");
 				} catch (Exception e) {
 					try {
+						Log.e(TAG, ">TCP连接服务器失败，重新连接<");
 						resetConnect();// 断开连接
 						lock.wait(2000);
 						continue;
 					} catch (InterruptedException e1) {
+						Log.e(TAG, ">TCP连接服务器失败，重新连接1111<");
 						continue;
 					}
 				}
 				try {
-					isConnect = false;
-					Log.e(TAG, ">TCP连接服务器成功<");
-					isWrite = true;// 设置可发送数据
-					new Thread(writeRunnable).start();// 启动发送线程
 					lock.wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -72,8 +72,21 @@ public class TCPSocketConnect implements Runnable {
 
 	@Override
 	public void run() {
-		// Log.e(TAG, ">=TCP结束连接线程=<");
+		Log.e(TAG, ">=TCP结束连接线程=<");
 		Connect();
+	}
+
+	/**
+	 * @description:
+	 * 
+	 * @throws:
+	 * @author: HuJun
+	 * @date: 2015年6月2日 上午11:54:05
+	 */
+	public void setWriteable() {
+		isConnect = false;
+		isWrite = true;// 设置可发送数据
+		new Thread(writeRunnable).start();// 启动发送线程
 	}
 
 	/**
@@ -83,7 +96,7 @@ public class TCPSocketConnect implements Runnable {
 		synchronized (lock) {
 			isConnect = false;
 			lock.notify();
-			// resetConnect();
+			resetConnect();
 		}
 	}
 
@@ -101,7 +114,7 @@ public class TCPSocketConnect implements Runnable {
 	 */
 	public void write(byte[] buffer) {
 		if (writeRunnable != null) {
-			
+
 			writeRunnable.write(buffer);
 		}
 	}
@@ -155,9 +168,9 @@ public class TCPSocketConnect implements Runnable {
 
 		@Override
 		public void run() {
-			Log.d(TAG, ">TCP发送线程开启<");
-			while (isWrite) {
 
+			isWrite = true;// 设置可发送数据
+			while (isWrite) {
 				synchronized (wlock) {
 					if (datas.size() <= 0) {
 						try {
@@ -168,8 +181,8 @@ public class TCPSocketConnect implements Runnable {
 					}
 					while (datas.size() > 0) {
 						byte[] buffer = datas.remove(0);// 获取一条发送数据
-					
 						if (isWrite) {
+							Log.e(TAG, ">发送数据<");
 							writes(buffer);// 发送数据
 						} else {
 							wlock.notify();

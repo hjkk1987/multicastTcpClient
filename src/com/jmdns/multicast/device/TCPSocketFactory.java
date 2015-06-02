@@ -66,7 +66,6 @@ public class TCPSocketFactory {
 	 */
 	public void write(byte[] bytes) throws IOException {
 		if (outStream != null) {
-			Log.e("TcpSocketFactory", "发送数据");
 			outStream.write(bytes);
 			outStream.flush();
 		}

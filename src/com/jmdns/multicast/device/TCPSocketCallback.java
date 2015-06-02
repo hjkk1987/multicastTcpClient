@@ -1,6 +1,7 @@
 package com.jmdns.multicast.device;
 
-public abstract interface TCPSocketCallback {
+public abstract interface TCPSocketCallback
+{
 	/**
 	 * 断开连接
 	 */

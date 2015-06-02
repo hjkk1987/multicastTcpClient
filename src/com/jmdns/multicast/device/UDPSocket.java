@@ -127,7 +127,6 @@ public class UDPSocket implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
 		while (isRunning) {
 			String time = devName
 					+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -142,6 +141,5 @@ public class UDPSocket implements Runnable {
 				e.printStackTrace();
 			}
 		}
-
 	}
 }

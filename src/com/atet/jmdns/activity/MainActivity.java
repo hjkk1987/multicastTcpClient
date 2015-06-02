@@ -1,8 +1,14 @@
 package com.atet.jmdns.activity;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +61,7 @@ public class MainActivity extends Activity {
 	private UDPSocket udpSocket = null;
 	private TCPSocketConnect tcpSocketConnect = null;
 	private boolean isRunning = false;
+	private String devName = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,7 @@ public class MainActivity extends Activity {
 		widget_init();
 		message.put(Communication.MESSAGE, "1");
 		message.put(Communication.MESSAGE_TYPE, "2");
+		devName = android.os.Build.MODEL;
 		// ((JmdnsAPP) getApplication())
 		// .createConnectionWrapper(new ConnectionWrapper.OnCreatedListener() {
 		// @Override
@@ -163,6 +171,7 @@ public class MainActivity extends Activity {
 											Toast.makeText(MainActivity.this,
 													"连接失败!", 1000).show();
 											isRunning = false;
+
 										}
 									});
 
@@ -172,6 +181,7 @@ public class MainActivity extends Activity {
 								public void tcp_connected() {
 									// TODO Auto-generated method stub
 									isRunning = true;
+									tcpSocketConnect.setWriteable();
 									runOnUiThread(new Runnable() {
 
 										@Override
@@ -181,27 +191,18 @@ public class MainActivity extends Activity {
 
 										}
 									});
-									new Thread(new Runnable() {
+									while (isRunning) {
+										String msg = "连接成功，开始发送数据!    "
+												+ devName + "\n";
+										tcpSocketConnect.write(msg.getBytes());
 
-										@Override
-										public void run() {
-											// TODO Auto-generated method stub
-											while (isRunning) {
-												String hahahaha = "123456!";
-												if (tcpSocketConnect != null)
-													tcpSocketConnect.write(hahahaha
-															.getBytes());
-												try {
-													Thread.sleep(30);
-												} catch (InterruptedException e) {
-													// TODO Auto-generated catch
-													// block
-													e.printStackTrace();
-												}
-											}
+										try {
+											Thread.sleep(30);
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
 										}
-									}).start();
-
+									}
 								}
 							});
 					String address = inetAddress.getHostAddress();
