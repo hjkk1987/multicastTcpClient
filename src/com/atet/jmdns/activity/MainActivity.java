@@ -144,16 +144,9 @@ public class MainActivity extends Activity {
 					.getServiceInfo(serviceInfo);
 			if (serviceInfo2 != null) {
 				InetAddress inetAddress = serviceInfo2.getInetAddress();
-				// if (inetAddress != null) {
-				// if (udpSocket == null || !udpSocket.isAlive())
-				// udpSocket = new UDPSocket(MainActivity.this,
-				// inetAddress);
-				// udpSocket.startSocket();
-				// }
 				if (tcpSocketConnect == null) {
 					tcpSocketConnect = new TCPSocketConnect(
 							new TCPSocketCallback() {
-
 								@Override
 								public void tcp_receive(byte[] buffer) {
 									// TODO Auto-generated method stub
@@ -170,11 +163,9 @@ public class MainActivity extends Activity {
 											// TODO Auto-generated method stub
 											Toast.makeText(MainActivity.this,
 													"连接失败!", 1000).show();
-											isRunning = false;
-
+											tcpSocketConnect.resetConnect();
 										}
 									});
-
 								}
 
 								@Override
