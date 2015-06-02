@@ -163,9 +163,13 @@ public class MainActivity extends Activity {
 											// TODO Auto-generated method stub
 											Toast.makeText(MainActivity.this,
 													"连接失败!", 1000).show();
-											tcpSocketConnect.resetConnect();
+
 										}
 									});
+									Log.e(Tag, "disconnect");
+									// new
+									// if (tcpSocketConnect != null)
+									// tcpSocketConnect.resetConnect();
 								}
 
 								@Override
@@ -185,7 +189,9 @@ public class MainActivity extends Activity {
 									while (isRunning) {
 										String msg = "连接成功，开始发送数据!    "
 												+ devName + "\n";
-										tcpSocketConnect.write(msg.getBytes());
+										if (tcpSocketConnect.isAlive())
+											tcpSocketConnect.write(msg
+													.getBytes());
 
 										try {
 											Thread.sleep(30);

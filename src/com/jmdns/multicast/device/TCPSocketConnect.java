@@ -37,6 +37,10 @@ public class TCPSocketConnect implements Runnable {
 		writeRunnable = new WriteRunnable();// 创建发送线程
 	}
 
+	public boolean isAlive() {
+		return mSocket.isConnected();
+	}
+
 	public void Connect() {
 
 		if (ip == null || port == -1) {
