@@ -37,10 +37,6 @@ public class TCPSocketConnect implements Runnable {
 		writeRunnable = new WriteRunnable();// 创建发送线程
 	}
 
-	public boolean isAlive() {
-		return mSocket.isConnected();
-	}
-
 	public void Connect() {
 
 		if (ip == null || port == -1) {
@@ -55,8 +51,9 @@ public class TCPSocketConnect implements Runnable {
 					Log.e(TAG, ">TCP连接服务器成功11111<");
 				} catch (Exception e) {
 					try {
-						Log.e(TAG, ">TCP连接服务器失败，重新连接<");
-						resetConnect();// 断开连接
+						Log.e(TAG, ">TCP连接服务器失败<");
+						// resetConnect();// 断开连接
+						// Connect();
 						lock.wait(2000);
 						continue;
 					} catch (InterruptedException e1) {
@@ -155,10 +152,34 @@ public class TCPSocketConnect implements Runnable {
 			Thread.sleep(1); // 1ms
 			return true;
 		} catch (Exception e) {
-			Log.e("writes", "socket writes error.");
-			resetConnect();
+			Log.e("writes", "socket writes error.  check wifi " + isConnect());
+			// resetConnect();
+
 			return false;
 		}
+	}
+
+	private boolean isConnect() {
+		boolean success = false;
+		Process p = null;
+
+		try {
+			p = Runtime.getRuntime().exec("ping -c 1 -i 0.2 -W 1 " + ip);
+			int status = p.waitFor();
+			if (status == 0) {
+				success = true;
+			} else {
+				success = false;
+			}
+		} catch (IOException e) {
+			success = false;
+		} catch (InterruptedException e) {
+			success = false;
+		} finally {
+			p.destroy();
+		}
+
+		return success;
 	}
 
 	/**

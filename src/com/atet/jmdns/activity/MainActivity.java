@@ -143,10 +143,18 @@ public class MainActivity extends Activity {
 			ServiceInfo serviceInfo2 = JmdnsAPP.mJmdns
 					.getServiceInfo(serviceInfo);
 			if (serviceInfo2 != null) {
+				int port = serviceInfo2.getPort();
 				InetAddress inetAddress = serviceInfo2.getInetAddress();
+				// if (inetAddress != null) {
+				// if (udpSocket == null || !udpSocket.isAlive())
+				// udpSocket = new UDPSocket(MainActivity.this,
+				// inetAddress);
+				// udpSocket.startSocket();
+				// }
 				if (tcpSocketConnect == null) {
 					tcpSocketConnect = new TCPSocketConnect(
 							new TCPSocketCallback() {
+
 								@Override
 								public void tcp_receive(byte[] buffer) {
 									// TODO Auto-generated method stub
@@ -163,13 +171,11 @@ public class MainActivity extends Activity {
 											// TODO Auto-generated method stub
 											Toast.makeText(MainActivity.this,
 													"连接失败!", 1000).show();
+											isRunning = false;
 
 										}
 									});
-									Log.e(Tag, "disconnect");
-									// new
-									// if (tcpSocketConnect != null)
-									// tcpSocketConnect.resetConnect();
+
 								}
 
 								@Override
@@ -189,9 +195,7 @@ public class MainActivity extends Activity {
 									while (isRunning) {
 										String msg = "连接成功，开始发送数据!    "
 												+ devName + "\n";
-										if (tcpSocketConnect.isAlive())
-											tcpSocketConnect.write(msg
-													.getBytes());
+										tcpSocketConnect.write(msg.getBytes());
 
 										try {
 											Thread.sleep(30);
@@ -210,6 +214,7 @@ public class MainActivity extends Activity {
 			}
 
 		}
+
 	}
 
 	private Connection.ConnectionListener mConnectionListener = new Connection.ConnectionListener() {
